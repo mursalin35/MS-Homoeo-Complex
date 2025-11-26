@@ -14,17 +14,46 @@ export default function AddProductPage() {
     imageURL: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Here you can send data to backend
-    // Example: await fetch("/api/products", { method: "POST", body: JSON.stringify(form) })
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/add-product", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
-    toast.success("Product added successfully!");
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success("Product added successfully!");
+        setForm({
+          title: "",
+          shortDesc: "",
+          fullDesc: "",
+          price: "",
+          date: "",
+          priority: "",
+          imageURL: "",
+        });
+      } else {
+        toast.error(data.message || "Failed to add product");
+      }
+    } catch (err) {
+      toast.error("Server error. Please try again.");
+      console.log(err)
+    }
+    setLoading(false);
   };
 
   return (
@@ -134,9 +163,12 @@ export default function AddProductPage() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-md font-semibold transition"
+            disabled={loading}
+            className={`w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-md font-semibold transition ${
+              loading ? "opacity-60 cursor-not-allowed" : ""
+            }`}
           >
-            Add Product
+            {loading ? "Adding..." : "Add Product"}
           </button>
         </form>
       </div>
