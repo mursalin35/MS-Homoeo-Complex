@@ -5,9 +5,12 @@ export default async function ProductId({ params }) {
 
   let product;
   try {
-    const res = await fetch(`http://localhost:5000/products/${id}`, {
-      cache: "no-store", // fresh data
-    });
+    const res = await fetch(
+      `https://ms-homoeo-complex-server.vercel.app/products/${id}`,
+      {
+        cache: "no-store", // fresh data
+      }
+    );
     if (!res.ok) throw new Error("Failed to fetch product");
     product = await res.json();
   } catch (err) {

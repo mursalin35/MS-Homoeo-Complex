@@ -15,7 +15,7 @@ export default function ProductPage() {
     if (search) params.append("search", search);
     if (sort) params.append("sort", sort);
 
-    const url = `http://localhost:5000/products?${params.toString()}`;
+    const url = `https://ms-homoeo-complex-server.vercel.app/products?${params.toString()}`;
 
     const res = await fetch(url);
     const data = await res.json();
@@ -80,9 +80,7 @@ export default function ProductPage() {
                 {product.shortDesc}
               </p>
 
-              <p className="mt-3 font-bold text-green-800">
-                ৳ {product.price}
-              </p>
+              <p className="mt-3 font-bold text-green-800">৳ {product.price}</p>
 
               <Link
                 href={`/products/${product._id}`}

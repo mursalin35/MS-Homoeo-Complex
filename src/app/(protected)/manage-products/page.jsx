@@ -8,7 +8,7 @@ export default function ManageProducts() {
 
   // Fetch products from backend
   useEffect(() => {
-    fetch("http://localhost:5000/products") // ✅ backend URL
+    fetch("https://ms-homoeo-complex-server.vercel.app/products") // ✅ backend URL
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Failed to fetch products:", err));
@@ -19,9 +19,12 @@ export default function ManageProducts() {
     if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/products/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `https://ms-homoeo-complex-server.vercel.app/products/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!res.ok) throw new Error("Failed to delete product");
 
       // Remove deleted product from state
@@ -35,7 +38,6 @@ export default function ManageProducts() {
 
   return (
     <div className="container mx-auto px-6 py-10">
-
       {/* ====== Top Header Section ====== */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-green-700">Manage Products</h1>
@@ -47,18 +49,26 @@ export default function ManageProducts() {
       {/* ====== Summary Cards (Top Info) ====== */}
       <div className="grid md:grid-cols-3 gap-4 mb-10">
         <div className="bg-white shadow rounded-xl p-5 border border-green-100">
-          <h3 className="text-2xl font-semibold text-green-700">{products.length}</h3>
+          <h3 className="text-2xl font-semibold text-green-700">
+            {products.length}
+          </h3>
           <p className="text-gray-600 text-sm">Total Products</p>
         </div>
 
         <div className="bg-white shadow rounded-xl p-5 border border-green-100">
           <h3 className="text-2xl font-semibold text-green-700">Active</h3>
-          <p className="text-gray-600 text-sm">All products are currently live</p>
+          <p className="text-gray-600 text-sm">
+            All products are currently live
+          </p>
         </div>
 
         <div className="bg-white shadow rounded-xl p-5 border border-green-100">
-          <h3 className="text-2xl font-semibold text-green-700">Last Updated</h3>
-          <p className="text-gray-600 text-sm">{new Date().toLocaleDateString()}</p>
+          <h3 className="text-2xl font-semibold text-green-700">
+            Last Updated
+          </h3>
+          <p className="text-gray-600 text-sm">
+            {new Date().toLocaleDateString()}
+          </p>
         </div>
       </div>
 

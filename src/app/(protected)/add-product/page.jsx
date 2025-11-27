@@ -25,13 +25,16 @@ export default function AddProductPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/add-product", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+      const res = await fetch(
+        "https://ms-homoeo-complex-server.vercel.app/add-product",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        }
+      );
 
       const data = await res.json();
 
@@ -51,7 +54,7 @@ export default function AddProductPage() {
       }
     } catch (err) {
       toast.error("Server error. Please try again.");
-      console.log(err)
+      console.log(err);
     }
     setLoading(false);
   };
@@ -82,7 +85,9 @@ export default function AddProductPage() {
 
           {/* Short description */}
           <div>
-            <label className="block font-semibold mb-1">Short Description</label>
+            <label className="block font-semibold mb-1">
+              Short Description
+            </label>
             <input
               type="text"
               name="shortDesc"
@@ -150,7 +155,9 @@ export default function AddProductPage() {
 
           {/* Image URL */}
           <div>
-            <label className="block font-semibold mb-1">Image URL (optional)</label>
+            <label className="block font-semibold mb-1">
+              Image URL (optional)
+            </label>
             <input
               type="text"
               name="imageURL"
