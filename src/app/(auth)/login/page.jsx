@@ -4,7 +4,7 @@ import React, { useState, useContext } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { toast, Toaster } from "react-hot-toast";
 
@@ -15,9 +15,6 @@ const Login = () => {
   const [wrongAttempts, setWrongAttempts] = useState(0);
 
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/";
-
   const { login, signInWithGoogle, setUser } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
@@ -30,7 +27,7 @@ const Login = () => {
       setUser(result.user);
       setWrongAttempts(0);
       toast.success("Login successful!");
-      router.push(redirect);
+      router.push("/"); // সরাসরি home page
     } catch (error) {
       const attempts = wrongAttempts + 1;
       setWrongAttempts(attempts);
@@ -47,7 +44,7 @@ const Login = () => {
       const result = await signInWithGoogle();
       setUser(result.user);
       toast.success("Signed in with Google!");
-      router.push(redirect);
+      router.push("/"); // সরাসরি home page
     } catch (error) {
       toast.error(error.message);
     }
