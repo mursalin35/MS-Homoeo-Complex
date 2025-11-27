@@ -1,37 +1,119 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { IoLogIn, IoLogOut } from "react-icons/io5";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { FaUser } from "react-icons/fa";
 
 export default function NavBar() {
   const { user, logOut } = useAuth();
+  const pathname = usePathname();
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
+  const mobileMenuRef = useRef(null);
+  const profileMenuRef = useRef(null);
+
+  // ---------- Close on outside click ----------
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (
+        mobileMenuRef.current && !mobileMenuRef.current.contains(e.target)
+      ) {
+        setMobileOpen(false);
+      }
+
+      if (
+        profileMenuRef.current && !profileMenuRef.current.contains(e.target)
+      ) {
+        setProfileOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // ---------- Active Link Style ----------
+  const activeClass = "text-green-700 font-semibold underline underline-offset-4";
+  const normalClass = "hover:text-green-600";
+
   const navLinks = (
     <>
-      <li><Link href="/" className="hover:text-green-600">Home</Link></li>
-      <li><Link href="/products" className="hover:text-green-600">Products</Link></li>
-      <li><Link href="/about" className="hover:text-green-600">About Us</Link></li>
-      <li><Link href="/contact" className="hover:text-green-600">Contact</Link></li>
+      <li>
+        <Link
+          href="/"
+          className={pathname === "/" ? activeClass : normalClass}
+          onClick={() => setMobileOpen(false)}
+        >
+          Home
+        </Link>
+      </li>
+
+      <li>
+        <Link
+          href="/products"
+          className={pathname === "/products" ? activeClass : normalClass}
+          onClick={() => setMobileOpen(false)}
+        >
+          Products
+        </Link>
+      </li>
+
+      <li>
+        <Link
+          href="/about"
+          className={pathname === "/about" ? activeClass : normalClass}
+          onClick={() => setMobileOpen(false)}
+        >
+          About Us
+        </Link>
+      </li>
+
+      <li>
+        <Link
+          href="/contact"
+          className={pathname === "/contact" ? activeClass : normalClass}
+          onClick={() => setMobileOpen(false)}
+        >
+          Contact
+        </Link>
+      </li>
     </>
   );
 
   const profileLinks = (
     <>
-      <li><Link href="/add-product" className="flex items-center gap-1"><FaUser /> Add Product</Link></li>
-      <li><Link href="/manage-products" className="flex items-center gap-1"><FaUser /> Manage-Products</Link></li>
-    </>
+    <li>
+      <Link
+        href="/add-product"
+        className={pathname === "/add-product" ? activeClass : "flex items-center mt-2 gap-1 hover:text-green-600"}
+        onClick={() => setProfileOpen(false)}
+      >
+         Add Product
+      </Link>
+    </li>
+
+    <li>
+      <Link
+        href="/manage-products"
+        className={pathname === "/manage-products" ? activeClass : "flex items-center mt-1 mb-4 gap-1 hover:text-green-600"}
+        onClick={() => setProfileOpen(false)}
+      >
+         Manage-Products
+      </Link>
+    </li>
+  </>
   );
 
   return (
-    <nav className="navbar backdrop-blur-lg border border-white/20 shadow-md px-4 md:px-8 h-18 mx-auto glass-card bg-[#E8FAF7] dark:bg-[#1a1c25] sticky top-0 z-50 flex items-center justify-between">
-      {/* Left: Mobile menu toggle + Logo */}
+    <nav className="navbar backdrop-blur-lg border border-green-200 shadow-md px-4 md:px-8 h-18 mx-auto bg-[#e8f8ee] dark:bg-[#1a1c25] sticky top-0 z-50 flex items-center justify-between">
+
+      {/* Left */}
       <div className="flex items-center gap-4">
-        {/* Mobile toggle */}
         <button
           className="md:hidden btn btn-ghost"
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -41,41 +123,46 @@ export default function NavBar() {
           </svg>
         </button>
 
-        {/* Logo */}
-        <Link href="/" className="text-2xl font-bold text-green-700">M.S Homoeo Complex</Link>
+        <Link href="/" className="text-2xl font-bold text-green-700">
+          M.S Homoeo Complex
+        </Link>
       </div>
 
-      {/* Center: Desktop Menu */}
+      {/* Desktop Menu */}
       <ul className="hidden md:flex menu menu-horizontal gap-8">
         {navLinks}
       </ul>
 
-      {/* Right: Profile / Login */}
-      <div className="relative">
+      {/* Right: Profile */}
+      <div className="relative" ref={profileMenuRef}>
         {user ? (
-          <div className="relative">
+          <div>
             <button
               className="btn btn-ghost btn-circle avatar"
               onClick={() => setProfileOpen(!profileOpen)}
             >
-              <div className="w-9 rounded-full border-2 border-gray-300 overflow-hidden">
+              <div className="w-9 rounded-full border-2 border-green-400 overflow-hidden">
                 <img
-                  src={user.photoURL || "https://img.icons8.com/?size=100&id=0prbldgxVuTl&format=png&color=000000"}
+                  src={
+                    user.photoURL ||
+                    "https://img.icons8.com/?size=100&id=0prbldgxVuTl&format=png"
+                  }
                   alt="User"
-                  referrerPolicy="no-referrer"
                 />
               </div>
             </button>
 
             {profileOpen && (
-              <ul className="absolute right-0 mt-2 p-2 w-52 bg-base-100 shadow-md rounded-md z-50">
+              <ul className="absolute right-0 mt-1 p-3 min-w-52 bg-white shadow-md rounded-md z-50 border">
                 <li className="text-sm font-bold">{user.displayName}</li>
-                <li className="text-xs">{user.email}</li>
+                <li className="text-xs mb-1">{user.email}</li>
+
                 {profileLinks}
+
                 <li>
                   <button
                     onClick={logOut}
-                    className="btn btn-sm mt-2 text-white border-none bg-gradient-to-r from-[#632ee3] to-[#00b8b0] hover:opacity-90 w-full flex items-center justify-center gap-1"
+                    className="btn btn-sm mt-2 py-1 rounded-lg text-white border-none bg-gradient-to-r from-green-700 to-green-500 hover:opacity-90 w-full flex items-center justify-center gap-1"
                   >
                     <IoLogOut /> Logout
                   </button>
@@ -86,7 +173,7 @@ export default function NavBar() {
         ) : (
           <Link
             href="/login"
-            className="btn btn-sm text-white border-none bg-gradient-to-r from-[#632ee3] to-[#00b8b0] hover:opacity-90 flex items-center gap-1"
+            className="btn btn-sm px-6 py-2 rounded-lg text-white border-none bg-gradient-to-r from-green-700 to-green-500 hover:opacity-90 flex items-center gap-1"
           >
             <IoLogIn /> Login
           </Link>
@@ -95,7 +182,10 @@ export default function NavBar() {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <ul className="absolute top-full left-0 w-full bg-base-100 shadow-md p-4 flex flex-col gap-2 md:hidden z-40">
+        <ul
+          ref={mobileMenuRef}
+          className="absolute mt-2 p-3 w-44 bg-white shadow-md rounded-md z-50 top-14 left-4 flex flex-col gap-2 border md:hidden"
+        >
           {navLinks}
         </ul>
       )}
