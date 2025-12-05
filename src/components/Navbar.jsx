@@ -4,11 +4,11 @@ import { useState, useEffect, useRef } from "react";
 import { IoLogIn, IoLogOut } from "react-icons/io5";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
-import { FaUser } from "react-icons/fa";
+import { useSession, signOut } from "next-auth/react";
 
 export default function NavBar() {
-  const { user, logOut } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const pathname = usePathname();
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -144,7 +144,7 @@ export default function NavBar() {
               <div className="w-9 rounded-full border-2 border-green-400 overflow-hidden">
                 <img
                   src={
-                    user.photoURL ||
+                    user.image ||
                     "https://img.icons8.com/?size=100&id=0prbldgxVuTl&format=png"
                   }
                   alt="User"
@@ -161,7 +161,7 @@ export default function NavBar() {
 
                 <li>
                   <button
-                    onClick={logOut}
+                    onClick={() => signOut()}
                     className="btn btn-sm mt-2 py-1 rounded-lg text-white border-none bg-gradient-to-r from-green-700 to-green-500 hover:opacity-90 w-full flex items-center justify-center gap-1"
                   >
                     <IoLogOut /> Logout

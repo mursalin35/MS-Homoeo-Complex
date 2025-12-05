@@ -5,7 +5,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/context/AuthContext";
+import { signIn } from "next-auth/react";
 import { toast, Toaster } from "react-hot-toast";
 
 const Login = () => {
@@ -15,7 +15,6 @@ const Login = () => {
   const [wrongAttempts, setWrongAttempts] = useState(0);
 
   const router = useRouter();
-  const { login, signInWithGoogle, setUser } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,31 +22,29 @@ const Login = () => {
     setPasswordError("");
 
     try {
-      const result = await login(email, password);
-      setUser(result.user);
-      setWrongAttempts(0);
-      toast.success("Login successful!");
-      router.push("/"); // সরাসরি home page
-    } catch (error) {
-      const attempts = wrongAttempts + 1;
-      setWrongAttempts(attempts);
-      if (attempts >= 4) {
-        setPasswordError("Too many attempts. Click forgot!");
+      const res = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (res?.error) {
+          setPasswordError("Invalid credentials");
+          toast.error("Login failed");
       } else {
-        setPasswordError("Wrong email or password");
+        toast.success("Login successful!");
+        router.refresh();
+        router.push("/");
       }
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   };
 
   const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithGoogle();
-      setUser(result.user);
-      toast.success("Signed in with Google!");
-      router.push("/"); // সরাসরি home page
-    } catch (error) {
-      toast.error(error.message);
-    }
+    // Google sign in usually redirects to provider
+    await signIn("google", { callbackUrl: "/" });
   };
 
   return (

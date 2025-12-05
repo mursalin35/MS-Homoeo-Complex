@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { AuthContext } from "@/context/AuthContext";
+import { signIn } from "next-auth/react";
 import { toast, Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 const Register = () => {
-  const { createUser, updateUser, signInWithGoogle, setUser } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const router = useRouter();
@@ -38,25 +37,39 @@ const Register = () => {
     }
 
     try {
-      const result = await createUser(email, password);
-      await updateUser({ displayName: name, photoURL: photo });
-      setUser({ ...result.user, displayName: name, photoURL: photo });
-      toast.success("Account created successfully! 🎉");
-      router.push("/");
+        const res = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password, image: photo }),
+        });
+
+        if (res.ok) {
+            toast.success("Account created successfully! 🎉");
+            // Auto login
+            try {
+                await signIn("credentials", {
+                    redirect: false,
+                    email,
+                    password,
+                });
+                router.push("/");
+            } catch (loginError) {
+                console.error("Auto-login failed:", loginError);
+                // Still redirect even if auto-login fails, or let user login manually
+                router.push("/login");
+            }
+        } else {
+            const data = await res.json();
+            throw new Error(data.message || "Registration failed");
+        }
     } catch (error) {
       toast.error(error.message);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithGoogle();
-      setUser(result.user);
-      toast.success("Signed in with Google!");
-      router.push("/");
-    } catch (error) {
-      toast.error(error.message);
-    }
+    // Google sign in
+    await signIn("google", { callbackUrl: "/" });
   };
 
   return (
